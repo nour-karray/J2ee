@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1500" viewBox="0 0 1500 1500">
+  <defs>
+    <style>
+      .bg { fill: #f4f7fb; }
+      .box { fill: #ffffff; stroke: #9eb7de; stroke-width: 2.2; rx: 18; ry: 18; }
+      .head { fill: #eaf1ff; }
+      .name { font: 700 18px Arial, sans-serif; fill: #173d7a; }
+      .st { font: italic 13px Arial, sans-serif; fill: #5e7598; }
+      .txt { font: 14px Arial, sans-serif; fill: #243955; }
+      .small { font: 13px Arial, sans-serif; fill: #4a6288; }
+      .title { font: 700 28px Arial, sans-serif; fill: #14386f; }
+      .sub { font: 14px Arial, sans-serif; fill: #5f759a; }
+      .line { stroke: #5e82bf; stroke-width: 2.2; fill: none; }
+      .inherit { stroke: #4f70ab; stroke-width: 2.5; fill: none; }
+      .sep { stroke: #d7e2f0; stroke-width: 1.2; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#5e82bf"/>
+    </marker>
+    <marker id="triangle" markerWidth="14" markerHeight="14" refX="12" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,6 L12,0 L12,12 Z" fill="#ffffff" stroke="#4f70ab" stroke-width="1.5"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1500" height="1500"/>
+  <text class="title" x="60" y="55">Diagramme de classes - Backend</text>
+  <text class="sub" x="60" y="82">Version simplifiee et lisible du modele metier principal.</text>
+
+  <g transform="translate(530,120)">
+    <rect class="box" x="0" y="0" width="440" height="170"/>
+    <rect class="head" x="0" y="0" width="440" height="46" rx="18" ry="18"/>
+    <rect class="head" x="0" y="28" width="440" height="18"/>
+    <text class="name" x="20" y="29">BaseEntity</text>
+    <text class="st" x="20" y="66">&lt;&lt;MappedSuperclass&gt;&gt;</text>
+    <line class="sep" x1="0" y1="82" x2="440" y2="82"/>
+    <text class="txt" x="20" y="108">+ Long id</text>
+    <text class="txt" x="20" y="131">+ LocalDateTime createdAt</text>
+    <text class="txt" x="20" y="154">+ LocalDateTime updatedAt</text>
+  </g>
+
+  <g transform="translate(70,380)">
+    <rect class="box" x="0" y="0" width="320" height="170"/>
+    <rect class="head" x="0" y="0" width="320" height="46" rx="18" ry="18"/>
+    <rect class="head" x="0" y="28" width="320" height="18"/>
+    <text class="name" x="20" y="29">Specialite</text>
+    <text class="st" x="20" y="66">&lt;&lt;Entity&gt;&gt;</text>
+    <line class="sep" x1="0" y1="82" x2="320" y2="82"/>
+    <text class="txt" x="20" y="108">+ String nom</text>
+    <text class="txt" x="20" y="131">+ String description</text>
+    <text class="txt" x="20" y="154">+ List&lt;Utilisateur&gt; utilisateurs</text>
+  </g>
+
+  <g transform="translate(430,380)">
+    <rect class="box" x="0" y="0" width="430" height="305"/>
+    <rect class="head" x="0" y="0" width="430" height="46" rx="18" ry="18"/>
+    <rect class="head" x="0" y="28" width="430" height="18"/>
+    <text class="name" x="20" y="29">Utilisateur</text>
+    <text class="st" x="20" y="66">&lt;&lt;Entity&gt;&gt;</text>
+    <line class="sep" x1="0" y1="82" x2="430" y2="82"/>
+    <text class="txt" x="20" y="108">+ String matricule</text>
+    <text class="txt" x="20" y="131">+ String prenom</text>
+    <text class="txt" x="20" y="154">+ String nom</text>
+    <text class="txt" x="20" y="177">+ String email</text>
+    <text class="txt" x="20" y="200">+ String telephone</text>
+    <text class="txt" x="20" y="223">+ String motDePasse</text>
+    <text class="txt" x="20" y="246">+ Role role</text>
+    <text class="txt" x="20" y="269">+ Specialite specialite</text>
+    <text class="txt" x="20" y="292">+ List&lt;Affectation&gt; affectations</text>
+  </g>
+
+  <g transform="translate(900,380)">
+    <rect class="box" x="0" y="0" width="430" height="330"/>
+    <rect class="head" x="0" y="0" width="430" height="46" rx="18" ry="18"/>
+    <rect class="head" x="0" y="28" width="430" height="18"/>
+    <text class="name" x="20" y="29">Mission</text>
+    <text class="st" x="20" y="66">&lt;&lt;Entity&gt;&gt;</text>
+    <line class="sep" x1="0" y1="82" x2="430" y2="82"/>
+    <text class="txt" x="20" y="108">+ String code</text>
+    <text class="txt" x="20" y="131">+ String titre</text>
+    <text class="txt" x="20" y="154">+ String description</text>
+    <text class="txt" x="20" y="177">+ String clientNom</text>
+    <text class="txt" x="20" y="200">+ String localisation</text>
+    <text class="txt" x="20" y="223">+ LocalDate dateDebut</text>
+    <text class="txt" x="20" y="246">+ LocalDate dateFin</text>
+    <text class="txt" x="20" y="269">+ MissionStatus status</text>
+    <text class="txt" x="20" y="292">+ Priorite priorite</text>
+    <text class="txt" x="20" y="315">+ BigDecimal budget</text>
+  </g>
+
+  <g transform="translate(540,810)">
+    <rect class="box" x="0" y="0" width="420" height="238"/>
+    <rect class="head" x="0" y="0" width="420" height="46" rx="18" ry="18"/>
+    <rect class="head" x="0" y="28" width="420" height="18"/>
+    <text class="name" x="20" y="29">Affectation</text>
+    <text class="st" x="20" y="66">&lt;&lt;Entity&gt;&gt;</text>
+    <line class="sep" x1="0" y1="82" x2="420" y2="82"/>
+    <text class="txt" x="20" y="108">+ Utilisateur employe</text>
+    <text class="txt" x="20" y="131">+ Mission mission</text>
+    <text class="txt" x="20" y="154">+ LocalDate dateDebut</text>
+    <text class="txt" x="20" y="177">+ LocalDate dateFin</text>
+    <text class="txt" x="20" y="200">+ Integer tauxOccupation</text>
+    <text class="txt" x="20" y="223">+ AffectationStatus status</text>
+  </g>
+
+  <g transform="translate(430,1150)">
+    <rect class="box" x="0" y="0" width="340" height="110"/>
+    <rect class="head" x="0" y="0" width="340" height="44" rx="18" ry="18"/>
+    <rect class="head" x="0" y="26" width="340" height="18"/>
+    <text class="name" x="20" y="28">Role</text>
+    <text class="st" x="20" y="64">&lt;&lt;enumeration&gt;&gt;</text>
+    <line class="sep" x1="0" y1="78" x2="340" y2="78"/>
+    <text class="txt" x="20" y="101">ADMIN / EMPLOYE</text>
+  </g>
+
+  <g transform="translate(900,1120)">
+    <rect class="box" x="0" y="0" width="430" height="126"/>
+    <rect class="head" x="0" y="0" width="430" height="44" rx="18" ry="18"/>
+    <rect class="head" x="0" y="26" width="430" height="18"/>
+    <text class="name" x="20" y="28">MissionStatus</text>
+    <text class="st" x="20" y="64">&lt;&lt;enumeration&gt;&gt;</text>
+    <line class="sep" x1="0" y1="78" x2="430" y2="78"/>
+    <text class="txt" x="20" y="101">PLANIFIEE / EN_COURS</text>
+    <text class="txt" x="20" y="121">/ TERMINEE / ANNULEE</text>
+  </g>
+
+  <g transform="translate(900,1290)">
+    <rect class="box" x="0" y="0" width="430" height="110"/>
+    <rect class="head" x="0" y="0" width="430" height="44" rx="18" ry="18"/>
+    <rect class="head" x="0" y="26" width="430" height="18"/>
+    <text class="name" x="20" y="28">Priorite</text>
+    <text class="st" x="20" y="64">&lt;&lt;enumeration&gt;&gt;</text>
+    <line class="sep" x1="0" y1="78" x2="430" y2="78"/>
+    <text class="txt" x="20" y="101">BASSE / MOYENNE / HAUTE</text>
+  </g>
+
+  <g transform="translate(500,1320)">
+    <rect class="box" x="0" y="0" width="500" height="110"/>
+    <rect class="head" x="0" y="0" width="500" height="44" rx="18" ry="18"/>
+    <rect class="head" x="0" y="26" width="500" height="18"/>
+    <text class="name" x="20" y="28">AffectationStatus</text>
+    <text class="st" x="20" y="64">&lt;&lt;enumeration&gt;&gt;</text>
+    <line class="sep" x1="0" y1="78" x2="500" y2="78"/>
+    <text class="txt" x="20" y="101">PLANIFIEE / ACTIVE / TERMINEE</text>
+  </g>
+
+  <path class="inherit" marker-end="url(#triangle)" d="M230 380 L230 330 L742 330 L742 290"/>
+  <path class="inherit" marker-end="url(#triangle)" d="M645 380 L645 290"/>
+  <path class="inherit" marker-end="url(#triangle)" d="M1115 380 L1115 330 L758 330 L758 290"/>
+  <path class="inherit" marker-end="url(#triangle)" d="M750 810 L750 290"/>
+
+  <path class="line" marker-end="url(#arrow)" d="M390 465 L430 465"/>
+  <text class="small" x="401" y="447">1</text>
+  <text class="small" x="404" y="487">specialite</text>
+  <text class="small" x="402" y="507">0..*</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M645 685 L645 810"/>
+  <text class="small" x="658" y="748">employe</text>
+  <text class="small" x="656" y="728">1</text>
+  <text class="small" x="656" y="768">0..*</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M1115 710 L1115 760 L960 760 L960 810"/>
+  <text class="small" x="1130" y="746">mission</text>
+  <text class="small" x="1130" y="726">1</text>
+  <text class="small" x="1130" y="766">0..*</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M620 685 L620 1080 L600 1080 L600 1150"/>
+  <text class="small" x="630" y="1088">role</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M1115 710 L1115 1120"/>
+  <text class="small" x="1128" y="930">status</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M1180 710 L1180 1290"/>
+  <text class="small" x="1193" y="1010">priorite</text>
+
+  <path class="line" marker-end="url(#arrow)" d="M750 1048 L750 1320"/>
+  <text class="small" x="764" y="1188">status</text>
+
+  <text class="sub" x="60" y="1465">Lecture simple : un utilisateur appartient a une specialite, une affectation lie un employe a une mission, et chaque entite metier herite de BaseEntity.</text>
+</svg>

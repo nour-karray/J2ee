@@ -1,0 +1,20 @@
+sequenceDiagram
+    actor U as Utilisateur
+    participant A as Angular
+    participant C as AuthController
+    participant S as AuthService
+    participant US as UtilisateurService
+    participant J as JwtService
+
+    U->>A: Saisit email + mot de passe
+    A->>C: POST /api/auth/login
+    C->>S: login(request)
+    S->>US: loadActiveUserByEmail(email)
+    US-->>S: Utilisateur
+    S->>S: Vérifie le mot de passe
+    S->>J: generateToken(utilisateur)
+    J-->>S: JWT
+    S-->>C: AuthResponse(token, utilisateur)
+    C-->>A: 200 OK
+    A->>A: Stocke le token en sessionStorage
+    A->>A: Injecte Authorization: Bearer <token>

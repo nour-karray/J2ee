@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/plateforme_missions?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Africa/Lagos}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET:Qm9uam91ckNvZGV4TWlzc2lvbnNQbGF0ZWZvcm1lSldUU2VjcmV0S2V5MjAyNg==}
+    expiration-hours: ${APP_JWT_EXPIRATION_HOURS:10}

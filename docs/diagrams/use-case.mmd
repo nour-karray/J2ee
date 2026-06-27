@@ -1,0 +1,29 @@
+flowchart LR
+    admin["Administrateur"]
+    employe["Employe"]
+
+    subgraph system["Plateforme de gestion des missions - Backend"]
+        auth["S'authentifier"]
+        me["Consulter mon profil courant"]
+        dashboard["Consulter le dashboard admin"]
+        users["Gerer les utilisateurs"]
+        specs["Gerer les specialites"]
+        missions["Gerer les missions"]
+        affectations["Gerer les affectations"]
+        team["Consulter l'equipe d'une mission"]
+        mymissions["Consulter mes missions"]
+    end
+
+    admin --> auth
+    admin --> me
+    admin --> dashboard
+    admin --> users
+    admin --> specs
+    admin --> missions
+    admin --> affectations
+    admin --> team
+
+    employe --> auth
+    employe --> me
+    employe --> mymissions
+    employe --> team

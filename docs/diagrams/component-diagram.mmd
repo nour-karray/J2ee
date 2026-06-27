@@ -1,0 +1,13 @@
+flowchart TB
+    user["Navigateur / Utilisateur"]
+    angular["Frontend Angular\nGuards + Interceptor + Pages"]
+    api["Spring Boot API\nControllers REST Spring MVC"]
+    core["Core métier\nServices + DTO + validations"]
+    data["Data layer\nJPA Entities + Repositories"]
+    mysql["MySQL"]
+
+    user --> angular
+    angular -->|"HTTP + JWT"| api
+    api --> core
+    core --> data
+    data --> mysql

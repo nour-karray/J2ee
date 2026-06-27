@@ -1,0 +1,59 @@
+erDiagram
+    SPECIALITES ||--o{ UTILISATEURS : "regroupe"
+    UTILISATEURS ||--o{ AFFECTATIONS : "porte"
+    MISSIONS ||--o{ AFFECTATIONS : "contient"
+
+    SPECIALITES {
+      bigint id PK
+      varchar nom UK
+      varchar description
+      boolean actif
+      datetime created_at
+      datetime updated_at
+    }
+
+    UTILISATEURS {
+      bigint id PK
+      varchar matricule UK
+      varchar prenom
+      varchar nom
+      varchar email UK
+      varchar telephone
+      varchar mot_de_passe
+      varchar role
+      bigint specialite_id FK
+      boolean actif
+      datetime created_at
+      datetime updated_at
+    }
+
+    MISSIONS {
+      bigint id PK
+      varchar code UK
+      varchar titre
+      text description
+      varchar client_nom
+      varchar localisation
+      date date_debut
+      date date_fin
+      varchar status
+      varchar priorite
+      decimal budget
+      boolean actif
+      datetime created_at
+      datetime updated_at
+    }
+
+    AFFECTATIONS {
+      bigint id PK
+      bigint employe_id FK
+      bigint mission_id FK
+      date date_debut
+      date date_fin
+      int taux_occupation
+      varchar status
+      varchar commentaire
+      boolean actif
+      datetime created_at
+      datetime updated_at
+    }

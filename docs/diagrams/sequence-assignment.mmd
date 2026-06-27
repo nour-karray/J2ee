@@ -1,0 +1,24 @@
+sequenceDiagram
+    actor Admin
+    participant UI as Angular Admin
+    participant AC as AffectationController
+    participant AS as AffectationService
+    participant US as UtilisateurService
+    participant MS as MissionService
+    participant AR as AffectationRepository
+
+    Admin->>UI: Crée une affectation
+    UI->>AC: POST /api/affectations
+    AC->>AS: create(request)
+    AS->>US: findEntity(employeId)
+    AS->>MS: findEntity(missionId)
+    AS->>AS: Vérifie rôle employé
+    AS->>AS: Vérifie dates affectation / mission
+    AS->>AR: findOverlappingForEmploye(...)
+    AR-->>AS: Affectations chevauchantes
+    AS->>AS: Vérifie taux cumulé <= 100%
+    AS->>AR: save(affectation)
+    AR-->>AS: Affectation persistée
+    AS-->>AC: AffectationDto
+    AC-->>UI: 200 OK
+    UI-->>Admin: Confirmation + rafraîchissement liste

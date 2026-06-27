@@ -1,0 +1,101 @@
+classDiagram
+    direction LR
+
+    class BaseEntity {
+      <<MappedSuperclass>>
+      +Long id
+      +LocalDateTime createdAt
+      +LocalDateTime updatedAt
+      +boolean actif
+      +onCreate()
+      +onUpdate()
+    }
+
+    class Specialite {
+      <<Entity>>
+      +String nom
+      +String description
+      +List~Utilisateur~ utilisateurs
+    }
+
+    class Utilisateur {
+      <<Entity>>
+      +String matricule
+      +String prenom
+      +String nom
+      +String email
+      +String telephone
+      +String motDePasse
+      +Role role
+      +Specialite specialite
+      +List~Affectation~ affectations
+      +String getNomComplet()
+    }
+
+    class Mission {
+      <<Entity>>
+      +String code
+      +String titre
+      +String description
+      +String clientNom
+      +String localisation
+      +LocalDate dateDebut
+      +LocalDate dateFin
+      +MissionStatus status
+      +Priorite priorite
+      +BigDecimal budget
+      +List~Affectation~ affectations
+    }
+
+    class Affectation {
+      <<Entity>>
+      +Utilisateur employe
+      +Mission mission
+      +LocalDate dateDebut
+      +LocalDate dateFin
+      +Integer tauxOccupation
+      +AffectationStatus status
+      +String commentaire
+    }
+
+    class Role {
+      <<enumeration>>
+      ADMIN
+      EMPLOYE
+    }
+
+    class MissionStatus {
+      <<enumeration>>
+      PLANIFIEE
+      EN_COURS
+      TERMINEE
+      ANNULEE
+    }
+
+    class AffectationStatus {
+      <<enumeration>>
+      PLANIFIEE
+      ACTIVE
+      TERMINEE
+    }
+
+    class Priorite {
+      <<enumeration>>
+      BASSE
+      MOYENNE
+      HAUTE
+    }
+
+    BaseEntity <|-- Specialite
+    BaseEntity <|-- Utilisateur
+    BaseEntity <|-- Mission
+    BaseEntity <|-- Affectation
+
+    Specialite "1" <-- "0..*" Utilisateur : specialite
+    Utilisateur "1" <-- "0..*" Affectation : employe
+    Mission "1" <-- "0..*" Affectation : mission
+
+    Utilisateur --> Role
+    Mission --> MissionStatus
+    Mission --> Priorite
+    Affectation --> AffectationStatus

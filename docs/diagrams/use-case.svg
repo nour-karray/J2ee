@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="980" viewBox="0 0 1400 980">
+  <defs>
+    <style>
+      .bg { fill: #f4f7fb; }
+      .system { fill: #ffffff; stroke: #c9d6ea; stroke-width: 2.5; rx: 26; ry: 26; }
+      .ellipse { fill: #eef4ff; stroke: #7f9cd2; stroke-width: 2; }
+      .title { font: 700 30px Arial, sans-serif; fill: #15336b; }
+      .subtitle { font: 14px Arial, sans-serif; fill: #53698d; }
+      .uc { font: 15px Arial, sans-serif; fill: #1f3557; }
+      .actor-line { stroke: #1e2d46; stroke-width: 4; }
+      .actor-text { font: 700 18px Arial, sans-serif; fill: #1c2d46; }
+      .link { stroke: #7a95c5; stroke-width: 2.3; fill: none; }
+      .box-label { font: 700 18px Arial, sans-serif; fill: #194280; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1400" height="980"/>
+  <text class="title" x="60" y="64">Diagramme de cas d'utilisation - Backend</text>
+  <text class="subtitle" x="60" y="92">Plateforme de gestion des missions : acteurs, acces et fonctions principales cote serveur.</text>
+
+  <rect class="system" x="270" y="130" width="860" height="760"/>
+  <text class="box-label" x="300" y="168">Plateforme de gestion des missions - Backend</text>
+
+  <g transform="translate(100,300)">
+    <circle class="actor-line" cx="0" cy="-66" r="26" fill="none"/>
+    <line class="actor-line" x1="0" y1="-40" x2="0" y2="48"/>
+    <line class="actor-line" x1="-44" y1="-6" x2="44" y2="-6"/>
+    <line class="actor-line" x1="0" y1="48" x2="-36" y2="110"/>
+    <line class="actor-line" x1="0" y1="48" x2="36" y2="110"/>
+    <text class="actor-text" x="-70" y="152">Administrateur</text>
+  </g>
+
+  <g transform="translate(1290,350)">
+    <circle class="actor-line" cx="0" cy="-66" r="26" fill="none"/>
+    <line class="actor-line" x1="0" y1="-40" x2="0" y2="48"/>
+    <line class="actor-line" x1="-44" y1="-6" x2="44" y2="-6"/>
+    <line class="actor-line" x1="0" y1="48" x2="-36" y2="110"/>
+    <line class="actor-line" x1="0" y1="48" x2="36" y2="110"/>
+    <text class="actor-text" x="-38" y="152">Employe</text>
+  </g>
+
+  <g>
+    <ellipse class="ellipse" cx="470" cy="248" rx="145" ry="42"/>
+    <text class="uc" x="405" y="254">S'authentifier</text>
+
+    <ellipse class="ellipse" cx="840" cy="248" rx="160" ry="42"/>
+    <text class="uc" x="755" y="254">Consulter mon profil</text>
+
+    <ellipse class="ellipse" cx="470" cy="372" rx="168" ry="42"/>
+    <text class="uc" x="362" y="378">Consulter le dashboard admin</text>
+
+    <ellipse class="ellipse" cx="840" cy="372" rx="150" ry="42"/>
+    <text class="uc" x="754" y="378">Gerer les utilisateurs</text>
+
+    <ellipse class="ellipse" cx="470" cy="506" rx="145" ry="42"/>
+    <text class="uc" x="383" y="512">Gerer les specialites</text>
+
+    <ellipse class="ellipse" cx="840" cy="506" rx="130" ry="42"/>
+    <text class="uc" x="770" y="512">Gerer les missions</text>
+
+    <ellipse class="ellipse" cx="470" cy="640" rx="145" ry="42"/>
+    <text class="uc" x="369" y="646">Gerer les affectations</text>
+
+    <ellipse class="ellipse" cx="840" cy="640" rx="186" ry="42"/>
+    <text class="uc" x="724" y="646">Consulter l'equipe d'une mission</text>
+
+    <ellipse class="ellipse" cx="840" cy="774" rx="136" ry="42"/>
+    <text class="uc" x="762" y="780">Consulter mes missions</text>
+  </g>
+
+  <path class="link" d="M136 238 L325 238"/>
+  <path class="link" d="M136 264 L680 248"/>
+  <path class="link" d="M144 292 L302 364"/>
+  <path class="link" d="M140 324 L690 372"/>
+  <path class="link" d="M130 360 L325 500"/>
+  <path class="link" d="M132 390 L710 506"/>
+  <path class="link" d="M120 425 L326 640"/>
+  <path class="link" d="M124 456 L654 640"/>
+
+  <path class="link" d="M1150 246 L1000 246"/>
+  <path class="link" d="M1150 354 L1026 640"/>
+  <path class="link" d="M1150 382 L976 774"/>
+
+  <text class="subtitle" x="300" y="852">Administrateur : authentification, dashboard, gestion des comptes, missions, affectations et specialites.</text>
+  <text class="subtitle" x="300" y="878">Employe : authentification, consultation du profil, des missions et de l'equipe d'une mission.</text>
+  <text class="subtitle" x="300" y="904">Le backend actuel ne propose pas d'inscription publique libre.</text>
+</svg>
