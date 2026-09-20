@@ -34,7 +34,7 @@ class UtilisateurServiceTest {
                 "EMP-100",
                 "Aya",
                 "Ben Salem",
-                "aya@missions.local",
+                "employee@demo.invalid",
                 "0000",
                 "Employe123!",
                 Role.EMPLOYE,

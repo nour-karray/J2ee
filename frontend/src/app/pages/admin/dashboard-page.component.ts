@@ -10,7 +10,6 @@ interface OverviewCard {
   label: string;
   value: string;
   tone: string;
-  trend: string;
 }
 
 interface DashboardLegendItem {
@@ -24,7 +23,6 @@ interface UpcomingItem {
   month: string;
   title: string;
   subtitle: string;
-  time: string;
   tone: string;
 }
 
@@ -32,7 +30,6 @@ interface RecentAlertItem {
   icon: string;
   title: string;
   subtitle: string;
-  age: string;
   tone: string;
 }
 
@@ -63,7 +60,6 @@ interface QuickAction {
           <div class="dashboard-metric-copy">
             <small>{{ card.label }}</small>
             <strong>{{ card.value }}</strong>
-            <span class="dashboard-metric-trend" [class]="card.tone">{{ card.trend }}</span>
           </div>
         </article>
       </section>
@@ -112,7 +108,6 @@ interface QuickAction {
                 <small>{{ item.subtitle }}</small>
               </div>
               <div class="dashboard-event-meta">
-                <span>{{ item.time }}</span>
                 <span class="dashboard-event-dot" [class]="item.tone"></span>
               </div>
             </article>
@@ -133,7 +128,6 @@ interface QuickAction {
                 <strong>{{ item.title }}</strong>
                 <small>{{ item.subtitle }}</small>
               </div>
-              <span class="dashboard-alert-age">{{ item.age }}</span>
             </article>
             <div class="dashboard-empty" *ngIf="!recentAlerts().length">Aucune alerte recente.</div>
           </div>
@@ -172,7 +166,7 @@ export class AdminDashboardPageComponent {
 
   readonly dashboard = signal<Dashboard | null>(null);
   readonly error = signal('');
-  readonly firstName = computed(() => this.auth.utilisateur()?.nomComplet?.split(' ')[0] ?? 'Admin');
+  readonly firstName = computed(() => this.auth.utilisateur()?.nomComplet?.split(' ')[0] ?? '');
   readonly todayLabel = computed(() =>
     new Intl.DateTimeFormat('fr-FR', {
       weekday: 'long',
@@ -182,13 +176,6 @@ export class AdminDashboardPageComponent {
     }).format(new Date())
   );
   readonly urgentAlertsCount = computed(() => this.dashboard()?.alertesFinProche.length ?? 0);
-  readonly progressRate = computed(() => {
-    const data = this.dashboard();
-    if (!data || !data.totalEmployes) {
-      return 0;
-    }
-    return Math.min(100, Math.round((data.affectationsActives / data.totalEmployes) * 100));
-  });
 
   readonly overviewCards = computed<OverviewCard[]>(() => {
     const data = this.dashboard();
@@ -197,10 +184,10 @@ export class AdminDashboardPageComponent {
     }
 
     return [
-      { icon: 'MI', label: 'Missions actives', value: String(data.missionsActives), tone: 'blue', trend: `+${Math.max(8, data.missionsActives * 2)}%` },
-      { icon: 'AL', label: 'Alertes', value: String(this.urgentAlertsCount()), tone: 'orange', trend: `+${Math.max(3, this.urgentAlertsCount() * 4)}%` },
-      { icon: 'EM', label: 'Employes actifs', value: String(data.totalEmployes), tone: 'purple', trend: `+${Math.max(5, Math.round(data.totalEmployes / 3))}%` },
-      { icon: 'TX', label: 'Taux d avancement', value: `${this.progressRate()}%`, tone: 'green', trend: `+${Math.max(6, Math.round(this.progressRate() / 4))}%` }
+      { icon: 'MI', label: 'Missions actives', value: String(data.missionsActives), tone: 'blue' },
+      { icon: 'AL', label: 'Alertes de fin proche', value: String(this.urgentAlertsCount()), tone: 'orange' },
+      { icon: 'EM', label: 'Employes actifs', value: String(data.totalEmployes), tone: 'purple' },
+      { icon: 'AF', label: 'Affectations actives', value: String(data.affectationsActives), tone: 'green' }
     ];
   });
 
@@ -212,9 +199,7 @@ export class AdminDashboardPageComponent {
 
     return [
       { label: 'Planifiees', value: data.missionsPlanifiees, tone: 'blue' },
-      { label: 'Actives', value: data.missionsActives, tone: 'purple' },
-      { label: 'Affectations', value: data.affectationsActives, tone: 'green' },
-      { label: 'Alertes', value: this.urgentAlertsCount(), tone: 'orange' }
+      { label: 'En cours', value: data.missionsActives, tone: 'purple' }
     ];
   });
 
@@ -250,25 +235,13 @@ export class AdminDashboardPageComponent {
       return [];
     }
 
-    const fromMissions = data.missionsPrioritaires.slice(0, 2).map((mission, index) => ({
+    return data.missionsPrioritaires.slice(0, 4).map((mission, index) => ({
       day: this.extractDay(mission.dateFin),
       month: this.extractMonth(mission.dateFin),
       title: mission.titre,
       subtitle: mission.code,
-      time: index === 0 ? '09:00 -> 16:00' : '14:00 -> 16:00',
       tone: index % 2 === 0 ? 'blue' : 'purple'
     }));
-
-    const fromAlerts = data.alertesFinProche.slice(0, 2).map((alert, index) => ({
-      day: this.extractDay(alert.dateFin),
-      month: this.extractMonth(alert.dateFin),
-      title: alert.missionTitre,
-      subtitle: alert.employeNom,
-      time: index === 0 ? '10:00 -> 12:00' : '15:00 -> 16:00',
-      tone: index % 2 === 0 ? 'green' : 'orange'
-    }));
-
-    return [...fromMissions, ...fromAlerts].slice(0, 4);
   });
 
   readonly recentAlerts = computed<RecentAlertItem[]>(() => {
@@ -277,23 +250,12 @@ export class AdminDashboardPageComponent {
       return [];
     }
 
-    const urgent = data.alertesFinProche.slice(0, 2).map((alert, index) => ({
+    return data.alertesFinProche.slice(0, 4).map((alert, index) => ({
       icon: index === 0 ? '!' : 'AL',
       title: `${alert.missionTitre} en surveillance`,
       subtitle: `${alert.employeNom} - echeance dans ${alert.joursRestants} jour(s)`,
-      age: index === 0 ? 'Il y a 2 h' : 'Il y a 5 h',
       tone: index === 0 ? 'orange' : 'red'
     }));
-
-    const priority = data.missionsPrioritaires.slice(0, 2).map((mission, index) => ({
-      icon: index === 0 ? 'MI' : 'OK',
-      title: `${mission.titre} prioritaire`,
-      subtitle: `${mission.code} - ${mission.priorite}`,
-      age: index === 0 ? 'Il y a 1 j' : 'Il y a 2 j',
-      tone: index === 0 ? 'blue' : 'green'
-    }));
-
-    return [...urgent, ...priority].slice(0, 4);
   });
 
   readonly quickActions: QuickAction[] = [

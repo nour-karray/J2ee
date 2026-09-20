@@ -49,9 +49,11 @@ class AffectationServiceTest {
 
         Affectation existing = new Affectation();
         existing.setActif(true);
+        existing.setDateDebut(LocalDate.of(2026, 4, 1));
+        existing.setDateFin(LocalDate.of(2026, 4, 30));
         existing.setTauxOccupation(80);
 
-        when(utilisateurService.findEntity(1L)).thenReturn(employe);
+        when(utilisateurService.findEntityForAssignment(1L)).thenReturn(employe);
         when(missionService.findEntity(2L)).thenReturn(mission);
         when(affectationRepository.findOverlappingForEmploye(any(), any(), any(), isNull())).thenReturn(List.of(existing));
 
@@ -66,5 +68,37 @@ class AffectationServiceTest {
         );
 
         assertThrows(BusinessException.class, () -> affectationService.create(request));
+    }
+
+    @Test
+    void shouldAllowDisjointAssignmentsWhenTheirMaximumConcurrentLoadIsWithinLimit() {
+        Utilisateur employe = new Utilisateur();
+        employe.setRole(Role.EMPLOYE);
+        employe.setActif(true);
+        Mission mission = new Mission();
+        mission.setActif(true);
+        mission.setDateDebut(LocalDate.of(2026, 1, 1));
+        mission.setDateFin(LocalDate.of(2026, 1, 31));
+
+        Affectation first = assignment(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 10), 40);
+        Affectation second = assignment(LocalDate.of(2026, 1, 20), LocalDate.of(2026, 1, 31), 40);
+        when(utilisateurService.findEntityForAssignment(1L)).thenReturn(employe);
+        when(missionService.findEntity(2L)).thenReturn(mission);
+        when(affectationRepository.findOverlappingForEmploye(any(), any(), any(), isNull())).thenReturn(List.of(first, second));
+        when(affectationRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        AffectationRequest request = new AffectationRequest(1L, 2L, LocalDate.of(2026, 1, 1),
+                LocalDate.of(2026, 1, 31), 50, AffectationStatus.ACTIVE, null);
+
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> affectationService.create(request));
+    }
+
+    private Affectation assignment(LocalDate start, LocalDate end, int rate) {
+        Affectation assignment = new Affectation();
+        assignment.setActif(true);
+        assignment.setDateDebut(start);
+        assignment.setDateFin(end);
+        assignment.setTauxOccupation(rate);
+        return assignment;
     }
 }

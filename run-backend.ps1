@@ -1,7 +1,7 @@
 param(
-  [string]$DatasourceUrl = "jdbc:mysql://localhost:3308/plateforme_missions?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Africa/Lagos",
-  [string]$DatasourceUsername = "root",
-  [string]$DatasourcePassword = ""
+  [string]$DatasourceUrl = "jdbc:mysql://localhost:3306/plateforme_missions?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC",
+  [string]$DatasourceUsername = "missions_demo",
+  [string]$DatasourcePassword = "missions_demo_password"
 )
 
 $ErrorActionPreference = "Stop"
@@ -11,6 +11,10 @@ try {
   $env:SPRING_DATASOURCE_URL = $DatasourceUrl
   $env:SPRING_DATASOURCE_USERNAME = $DatasourceUsername
   $env:SPRING_DATASOURCE_PASSWORD = $DatasourcePassword
+
+  if (-not $env:APP_JWT_SECRET) {
+    throw "APP_JWT_SECRET est requis (valeur Base64 d'au moins 32 octets). Consultez .env.example."
+  }
 
   Write-Host "Compilation et installation des modules Maven..." -ForegroundColor Cyan
   mvn -DskipTests install

@@ -12,8 +12,6 @@ import com.entreprise.missions.data.repository.SpecialiteRepository;
 import com.entreprise.missions.data.repository.UtilisateurRepository;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,11 +56,7 @@ public class DashboardService {
                                 (int) ChronoUnit.DAYS.between(today, affectation.getDateFin())
                         ))
                         .toList(),
-                missionRepository.findAll(PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "updatedAt")))
-                        .stream()
-                        .filter(mission -> mission.isActif() && mission.getPriorite() != null)
-                        .sorted((left, right) -> right.getPriorite().compareTo(left.getPriorite()))
-                        .limit(5)
+                missionRepository.findTop5ByActifTrueAndPrioriteIsNotNullOrderByPrioriteDescUpdatedAtDesc().stream()
                         .map(mission -> new DashboardMissionDto(
                                 mission.getId(),
                                 mission.getCode(),

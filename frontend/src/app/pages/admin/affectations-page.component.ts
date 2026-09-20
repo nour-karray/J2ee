@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { concatMap, from, toArray } from 'rxjs';
 import { ApiService } from '../../core/api.service';
 import { FeedbackService } from '../../core/feedback.service';
 import { Affectation, ApiError, Mission, Utilisateur } from '../../core/models';
@@ -465,13 +464,10 @@ export class AffectationsPageComponent {
     }
 
     this.submitting.set(true);
-    from(employeIds).pipe(
-      concatMap((employeId) => this.apiService.createAffectation({
-        ...basePayload,
-        employeId
-      })),
-      toArray()
-    ).subscribe({
+    this.apiService.createAffectationsBatch({
+      ...basePayload,
+      employeIds
+    }).subscribe({
       next: (created) => {
         const total = created.length;
         this.feedback.success(

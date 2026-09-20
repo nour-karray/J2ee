@@ -50,13 +50,13 @@ class AuthControllerWebTest {
     void shouldAuthenticateUser() throws Exception {
         when(authService.login(any())).thenReturn(new AuthResponse(
                 "demo-token",
-                new SessionUtilisateurDto(1L, "Souhayla Derbel", "admin@missions.local", Role.ADMIN)
+                new SessionUtilisateurDto(1L, "Admin Demo", "admin@demo.invalid", Role.ADMIN)
         ));
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(java.util.Map.of(
-                                "email", "admin@missions.local",
+                                "email", "admin@demo.invalid",
                                 "motDePasse", "Admin123!"
                         ))))
                 .andExpect(status().isOk())
@@ -66,13 +66,13 @@ class AuthControllerWebTest {
 
     @Test
     void shouldReturnCurrentUserProfile() throws Exception {
-        when(utilisateurService.getCurrentProfile(eq("admin@missions.local"))).thenReturn(new UtilisateurDto(
+        when(utilisateurService.getCurrentProfile(eq("admin@demo.invalid"))).thenReturn(new UtilisateurDto(
                 1L,
                 "ADM-001",
-                "Souhayla",
-                "Derbel",
-                "Souhayla Derbel",
-                "admin@missions.local",
+                "Admin",
+                "Demo",
+                "Admin Demo",
+                "admin@demo.invalid",
                 null,
                 Role.ADMIN,
                 null,
@@ -84,9 +84,9 @@ class AuthControllerWebTest {
         ));
 
         mockMvc.perform(get("/api/auth/me")
-                        .principal(new UsernamePasswordAuthenticationToken("admin@missions.local", null)))
+                        .principal(new UsernamePasswordAuthenticationToken("admin@demo.invalid", null)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("admin@missions.local"))
+                .andExpect(jsonPath("$.email").value("admin@demo.invalid"))
                 .andExpect(jsonPath("$.role").value("ADMIN"));
     }
 }

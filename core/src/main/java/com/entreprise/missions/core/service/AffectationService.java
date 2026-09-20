@@ -1,6 +1,7 @@
 package com.entreprise.missions.core.service;
 
 import com.entreprise.missions.core.dto.AffectationDto;
+import com.entreprise.missions.core.dto.BulkAffectationRequest;
 import com.entreprise.missions.core.dto.AffectationRequest;
 import com.entreprise.missions.core.dto.MissionDto;
 import com.entreprise.missions.core.exception.BusinessException;
@@ -12,6 +13,9 @@ import com.entreprise.missions.data.model.Role;
 import com.entreprise.missions.data.model.Utilisateur;
 import com.entreprise.missions.data.repository.AffectationRepository;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -69,6 +73,16 @@ public class AffectationService {
         return toDto(affectationRepository.save(affectation));
     }
 
+    /**
+     * Atomic batch: Spring rolls back every prior insert when one employee violates a business rule.
+     */
+    public List<AffectationDto> createBatch(BulkAffectationRequest request) {
+        return request.employeIds().stream().distinct()
+                .map(employeId -> create(new AffectationRequest(employeId, request.missionId(), request.dateDebut(),
+                        request.dateFin(), request.tauxOccupation(), request.status(), request.commentaire())))
+                .toList();
+    }
+
     public AffectationDto update(Long id, AffectationRequest request) {
         Affectation affectation = findEntity(id);
         applyRequest(affectation, request, id);
@@ -116,7 +130,8 @@ public class AffectationService {
 
     private void applyRequest(Affectation affectation, AffectationRequest request, Long currentId) {
         validateDates(request.dateDebut(), request.dateFin());
-        Utilisateur employe = utilisateurService.findEntity(request.employeId());
+        // Pessimistic row lock serializes concurrent capacity checks for the same employee.
+        Utilisateur employe = utilisateurService.findEntityForAssignment(request.employeId());
         Mission mission = missionService.findEntity(request.missionId());
         validateEmploye(employe);
         validateMissionWindow(mission, request.dateDebut(), request.dateFin());
@@ -156,15 +171,26 @@ public class AffectationService {
     }
 
     private void validateOccupation(Utilisateur employe, LocalDate dateDebut, LocalDate dateFin, Integer tauxOccupation, Long currentId) {
-        int occupationExistante = affectationRepository.findOverlappingForEmploye(employe.getId(), dateDebut, dateFin, currentId)
-                .stream()
+        Map<LocalDate, Integer> changes = new TreeMap<>();
+        affectationRepository.findOverlappingForEmploye(employe.getId(), dateDebut, dateFin, currentId).stream()
                 .filter(Affectation::isActif)
-                .map(Affectation::getTauxOccupation)
-                .reduce(0, Integer::sum);
-
-        if (occupationExistante + tauxOccupation > 100) {
-            throw new BusinessException("Le taux d'occupation cumulé dépasse 100% sur la période sélectionnée.");
+                .forEach(existing -> addPeriod(changes, existing.getDateDebut(), existing.getDateFin(), existing.getTauxOccupation(), dateDebut, dateFin));
+        addPeriod(changes, dateDebut, dateFin, tauxOccupation, dateDebut, dateFin);
+        int concurrentOccupation = 0;
+        for (int change : changes.values()) {
+            concurrentOccupation += change;
+            if (concurrentOccupation > 100) {
+                throw new BusinessException("Le taux d'occupation cumulé dépasse 100% sur la période sélectionnée.");
+            }
         }
+    }
+
+    private void addPeriod(Map<LocalDate, Integer> changes, LocalDate start, LocalDate end, int rate,
+                           LocalDate requestedStart, LocalDate requestedEnd) {
+        LocalDate effectiveStart = start.isBefore(requestedStart) ? requestedStart : start;
+        LocalDate effectiveEnd = end.isAfter(requestedEnd) ? requestedEnd : end;
+        changes.merge(effectiveStart, rate, Integer::sum);
+        changes.merge(effectiveEnd.plusDays(1), -rate, Integer::sum);
     }
 
     private AffectationDto toDto(Affectation affectation) {

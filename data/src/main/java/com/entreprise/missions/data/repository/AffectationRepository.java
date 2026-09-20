@@ -27,6 +27,13 @@ public interface AffectationRepository extends JpaRepository<Affectation, Long>,
     );
 
     @Query("""
+            select count(a) > 0 from Affectation a
+            where a.employe.id = :employeId and a.mission.id = :missionId and a.actif = true
+            """)
+    boolean existsActiveAssignmentForEmployeAndMission(
+            @Param("employeId") Long employeId, @Param("missionId") Long missionId);
+
+    @Query("""
             select a from Affectation a
             join fetch a.employe e
             where a.mission.id = :missionId
@@ -53,6 +60,8 @@ public interface AffectationRepository extends JpaRepository<Affectation, Long>,
             join fetch a.employe e
             join fetch a.mission m
             where a.actif = true
+              and e.actif = true
+              and m.actif = true
               and a.dateFin between :start and :end
             order by a.dateFin asc
             """)

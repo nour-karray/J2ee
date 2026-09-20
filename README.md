@@ -1,103 +1,69 @@
-# Plateforme De Gestion Des Missions
+# Plateforme de gestion des missions
 
-Application de demonstration construite avec `Angular` en frontend et `Spring Boot / Spring MVC / JPA / JWT` en backend, dans l'esprit du cours sur l'architecture `3 tiers + MVC + persistance`.
+Application portfolio de planification des missions et affectations d'employés. Elle associe un frontend Angular à une API Spring Boot sécurisée, organisée en modules Maven `data`, `core` et `api`.
 
-## Structure
+## Fonctionnalités
 
-- `data/`: entites JPA, enums et repositories
-- `core/`: DTO, regles metier, validations et services
-- `api/`: application Spring Boot executable, securite JWT, controleurs REST et seed de demonstration
-- `frontend/`: SPA Angular avec dashboard admin et espace employe
-- `docs/diagrams/`: diagrammes Mermaid demandes par le sujet
+- Administration des utilisateurs, spécialités, missions et affectations
+- Espace employé avec profil et missions autorisées
+- Authentification JWT et contrôle d'accès par rôle
+- Contrôle transactionnel de charge simultanée (maximum 100 %)
+- Affectation groupée atomique : toutes les affectations sont créées ou aucune
+- Tableau de bord fondé exclusivement sur les données persistées
 
-## Fonctionnalites
+## Rôles et règles métier
 
-- Authentification JWT avec roles `ADMIN` et `EMPLOYE`
-- Gestion des specialites, utilisateurs, missions et affectations
-- Dashboard admin avec alertes et indicateurs
-- Consultation employe: profil, missions et equipe d'une mission
-- Validations metier:
-  - email et matricule uniques
-  - specialite obligatoire pour un employe
-  - dates de mission coherentes
-  - dates d'affectation incluses dans la mission
-  - charge cumulee d'un employe `<= 100%`
+- `ADMIN` gère toutes les ressources.
+- `EMPLOYE` accède uniquement à ses missions et aux équipes de missions auxquelles il est affecté.
+- Une affectation doit rester dans la période de sa mission.
+- La charge d'un employé ne dépasse jamais 100 % à une date donnée.
+- Une mission ou un employé avec des affectations actives ne peut pas être désactivé.
 
-## Lancement Backend
+## Architecture
 
-Le backend est un projet Maven multi-modules. Si tu lances `api` seul sans reinstaller `core` et `data`, tu peux avoir une erreur `ClassNotFoundException` ou `NoClassDefFoundError`.
-
-### Methode recommandee sous Windows PowerShell
-
-Depuis la racine du projet:
-
-```powershell
-cd C:\Users\User\Desktop\ProjetJ2ee
-.\run-backend.ps1
+```text
+Angular 19 → Spring Security / JWT → API module → Core business rules → Data / JPA → MySQL
 ```
 
-### Methode manuelle
+Stack : Java 21, Spring Boot 3, Spring Security, JPA/Hibernate, MySQL 8, Maven et Angular 19.
 
-1. Demarrer MySQL localement.
-2. Depuis la racine du projet, reinstaller les modules locaux:
+## Démarrage
 
-```powershell
-cd C:\Users\User\Desktop\ProjetJ2ee
-mvn -DskipTests install
-```
-
-3. Ensuite seulement, lancer l'API:
+Copiez `.env.example` dans votre environnement et définissez un `APP_JWT_SECRET` Base64 aléatoire d'au moins 32 octets. L'API refuse de démarrer sans cette clé.
 
 ```powershell
-cd C:\Users\User\Desktop\ProjetJ2ee\api
-$env:SPRING_DATASOURCE_URL='jdbc:mysql://localhost:3307/plateforme_missions?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Africa/Lagos'
-$env:SPRING_DATASOURCE_USERNAME='missions'
-$env:SPRING_DATASOURCE_PASSWORD='missions123'
-mvn spring-boot:run
-```
-
-API disponible sur [http://localhost:8080](http://localhost:8080).
-
-## Lancement Frontend
-
-Depuis [frontend/package.json](/C:/Users/User/Desktop/ProjetJ2ee/frontend/package.json):
-
-```powershell
-cd C:\Users\User\Desktop\ProjetJ2ee\frontend
-npm install
+docker compose up -d mysql
+mvn spring-boot:run -pl api -Dspring-boot.run.profiles=dev
+cd frontend
+npm ci
 npm start
 ```
 
-Frontend disponible sur [http://localhost:4200](http://localhost:4200).
+MySQL écoute sur `localhost:3306`. Les identifiants Docker par défaut sont explicitement réservés à la démonstration locale et peuvent être redéfinis par variables d'environnement.
 
-## Variables utiles
+Le jeu de démonstration est désactivé par défaut. Pour une démonstration locale uniquement, démarrez avec `APP_DEMO_SEED_ENABLED=true`; ne l'activez jamais en production.
 
-- `SPRING_DATASOURCE_URL`
-- `SPRING_DATASOURCE_USERNAME`
-- `SPRING_DATASOURCE_PASSWORD`
-- `APP_JWT_SECRET`
-- `APP_JWT_EXPIRATION_HOURS`
+## Sécurité
 
-Les valeurs par defaut sont definies dans [application.yml](/C:/Users/User/Desktop/ProjetJ2ee/api/src/main/resources/application.yml:1).
+- Aucun secret JWT ni fichier `.env` n'est commité.
+- Les échecs de connexion retournent tous `401 Email ou mot de passe incorrect.`
+- Les JWT malformés, expirés ou invalides retournent `401`, jamais une erreur interne.
+- Les contacts des membres d'équipe sont masqués pour les employés.
+- Les origines CORS sont configurées par `APP_CORS_ALLOWED_ORIGINS`.
 
-## Comptes De Demonstration
+## Tests et CI
 
-- `admin@missions.local / Admin123!`
-- `youssef@missions.local / Employe123!`
-- `salma@missions.local / Employe123!`
+```powershell
+mvn test
+mvn verify
+cd frontend
+npm ci
+npm test -- --watch=false --browsers=ChromeHeadless
+npm run build
+```
 
-## Diagrammes
+GitHub Actions exécute indépendamment Maven et Angular sur chaque push et pull request.
 
-- [Cas d'utilisation](/C:/Users/User/Desktop/ProjetJ2ee/docs/diagrams/use-case.mmd)
-- [Diagramme de classes](/C:/Users/User/Desktop/ProjetJ2ee/docs/diagrams/class-diagram.mmd)
-- [Schema entites-relationnel](/C:/Users/User/Desktop/ProjetJ2ee/docs/diagrams/entity-relationship.mmd)
-- [Diagramme de composants](/C:/Users/User/Desktop/ProjetJ2ee/docs/diagrams/component-diagram.mmd)
-- [Sequence authentification JWT](/C:/Users/User/Desktop/ProjetJ2ee/docs/diagrams/sequence-auth-jwt.mmd)
-- [Sequence affectation employe -> mission](/C:/Users/User/Desktop/ProjetJ2ee/docs/diagrams/sequence-assignment.mmd)
+## Limites et améliorations futures
 
-## IntelliJ
-
-- Ouvrir le projet racine comme projet Maven
-- Recharger le `pom.xml` parent pour charger `data`, `core` et `api`
-- Ouvrir `frontend/` comme module JavaScript si tu veux travailler Angular dans le meme workspace
-- Lancer `PlateformeMissionsApplication` depuis [PlateformeMissionsApplication.java](/C:/Users/User/Desktop/ProjetJ2ee/api/src/main/java/com/entreprise/missions/api/PlateformeMissionsApplication.java:1)
+Le projet est une démonstration mono-organisation. Une production réelle nécessiterait migrations versionnées, rotation des secrets, observabilité, limitation de débit et une gestion des comptes/permissions adaptée à l'organisation.

@@ -15,7 +15,7 @@ describe('authInterceptor', () => {
       utilisateur: {
         id: 1,
         nomComplet: 'Admin Demo',
-        email: 'admin@missions.local',
+        email: 'admin@demo.invalid',
         role: 'ADMIN'
       }
     }));
