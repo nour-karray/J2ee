@@ -93,6 +93,31 @@ class AffectationServiceTest {
         org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> affectationService.create(request));
     }
 
+    @Test
+    void shouldAllowExactlyOneHundredPercentAndRejectPartialOverlapAboveIt() {
+        Utilisateur employe = new Utilisateur();
+        employe.setRole(Role.EMPLOYE);
+        employe.setActif(true);
+        Mission mission = new Mission();
+        mission.setActif(true);
+        mission.setDateDebut(LocalDate.of(2026, 1, 1));
+        mission.setDateFin(LocalDate.of(2026, 1, 31));
+        when(utilisateurService.findEntityForAssignment(1L)).thenReturn(employe);
+        when(missionService.findEntity(2L)).thenReturn(mission);
+        when(affectationRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(affectationRepository.findOverlappingForEmploye(any(), any(), any(), isNull()))
+                .thenReturn(List.of(assignment(LocalDate.of(2026, 1, 5), LocalDate.of(2026, 1, 15), 60)));
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> affectationService.create(new AffectationRequest(1L, 2L,
+                LocalDate.of(2026, 1, 5), LocalDate.of(2026, 1, 15), 40, AffectationStatus.ACTIVE, null)));
+
+        when(affectationRepository.findOverlappingForEmploye(any(), any(), any(), isNull())).thenReturn(List.of(
+                assignment(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 10), 60),
+                assignment(LocalDate.of(2026, 1, 8), LocalDate.of(2026, 1, 20), 30)));
+        assertThrows(BusinessException.class, () -> affectationService.create(new AffectationRequest(1L, 2L,
+                LocalDate.of(2026, 1, 5), LocalDate.of(2026, 1, 15), 20, AffectationStatus.ACTIVE, null)));
+    }
+
     private Affectation assignment(LocalDate start, LocalDate end, int rate) {
         Affectation assignment = new Affectation();
         assignment.setActif(true);

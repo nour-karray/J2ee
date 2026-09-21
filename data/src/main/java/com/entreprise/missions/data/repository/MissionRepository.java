@@ -3,6 +3,7 @@ package com.entreprise.missions.data.repository;
 import com.entreprise.missions.data.model.Mission;
 import com.entreprise.missions.data.model.MissionStatus;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -23,5 +24,5 @@ public interface MissionRepository extends JpaRepository<Mission, Long>, JpaSpec
                 when com.entreprise.missions.data.model.Priorite.BASSE then 3
                 else 4 end, m.updatedAt desc
             """)
-    List<Mission> findTop5ByActifTrueAndPrioriteIsNotNull();
+    List<Mission> findPrioritizedMissions(Pageable pageable);
 }
