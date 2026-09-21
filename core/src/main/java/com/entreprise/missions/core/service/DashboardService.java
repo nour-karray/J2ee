@@ -56,7 +56,7 @@ public class DashboardService {
                                 (int) ChronoUnit.DAYS.between(today, affectation.getDateFin())
                         ))
                         .toList(),
-                missionRepository.findTop5ByActifTrueAndPrioriteIsNotNullOrderByPrioriteDescUpdatedAtDesc().stream()
+                missionRepository.findTop5ByActifTrueAndPrioriteIsNotNull().stream()
                         .map(mission -> new DashboardMissionDto(
                                 mission.getId(),
                                 mission.getCode(),

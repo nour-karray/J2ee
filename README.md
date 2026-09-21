@@ -29,17 +29,35 @@ Stack : Java 21, Spring Boot 3, Spring Security, JPA/Hibernate, MySQL 8, Maven e
 
 ## Démarrage
 
-Copiez `.env.example` dans votre environnement et définissez un `APP_JWT_SECRET` Base64 aléatoire d'au moins 32 octets. L'API refuse de démarrer sans cette clé.
+`.env.example` est une référence : ni PowerShell ni Spring Boot ne chargent automatiquement un fichier `.env`. Définissez réellement la clé JWT dans le shell. Le script installe les modules `data` et `core` avant de lancer `api`.
+
+### A. Développement rapide avec H2
+
+```powershell
+$env:APP_JWT_SECRET = [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
+$env:SPRING_PROFILES_ACTIVE = 'dev'
+.\run-backend.ps1
+```
+
+### B. MySQL avec Docker
 
 ```powershell
 docker compose up -d mysql
-mvn spring-boot:run -pl api -Dspring-boot.run.profiles=dev
+$env:APP_JWT_SECRET = [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
+$env:SPRING_DATASOURCE_URL = 'jdbc:mysql://localhost:3306/plateforme_missions?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC'
+$env:SPRING_DATASOURCE_USERNAME = 'missions_demo'
+$env:SPRING_DATASOURCE_PASSWORD = 'missions_demo_password'
+Remove-Item Env:SPRING_PROFILES_ACTIVE -ErrorAction SilentlyContinue
+.\run-backend.ps1
+```
+
+Puis démarrez le client :
+
+```powershell
 cd frontend
 npm ci
 npm start
 ```
-
-MySQL écoute sur `localhost:3306`. Les identifiants Docker par défaut sont explicitement réservés à la démonstration locale et peuvent être redéfinis par variables d'environnement.
 
 Le jeu de démonstration est désactivé par défaut. Pour une démonstration locale uniquement, démarrez avec `APP_DEMO_SEED_ENABLED=true`; ne l'activez jamais en production.
 

@@ -77,7 +77,7 @@ public class AffectationService {
      * Atomic batch: Spring rolls back every prior insert when one employee violates a business rule.
      */
     public List<AffectationDto> createBatch(BulkAffectationRequest request) {
-        return request.employeIds().stream().distinct()
+        return request.employeIds().stream().distinct().sorted()
                 .map(employeId -> create(new AffectationRequest(employeId, request.missionId(), request.dateDebut(),
                         request.dateFin(), request.tauxOccupation(), request.status(), request.commentaire())))
                 .toList();

@@ -62,6 +62,9 @@ public interface AffectationRepository extends JpaRepository<Affectation, Long>,
             where a.actif = true
               and e.actif = true
               and m.actif = true
+              and a.status <> com.entreprise.missions.data.model.AffectationStatus.TERMINEE
+              and m.status not in (com.entreprise.missions.data.model.MissionStatus.TERMINEE,
+                                   com.entreprise.missions.data.model.MissionStatus.ANNULEE)
               and a.dateFin between :start and :end
             order by a.dateFin asc
             """)
