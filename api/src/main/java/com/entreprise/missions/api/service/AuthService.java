@@ -3,20 +3,20 @@ package com.entreprise.missions.api.service;
 import com.entreprise.missions.api.security.JwtService;
 import com.entreprise.missions.core.dto.AuthResponse;
 import com.entreprise.missions.core.dto.LoginRequest;
-import com.entreprise.missions.core.dto.RegisterRequest;
-import com.entreprise.missions.core.dto.UtilisateurRequest;
-import com.entreprise.missions.core.exception.BusinessException;
 import com.entreprise.missions.core.service.UtilisateurService;
-import com.entreprise.missions.data.model.Role;
 import com.entreprise.missions.data.model.Utilisateur;
 import com.entreprise.missions.data.repository.UtilisateurRepository;
 import java.util.Locale;
-import java.util.UUID;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
+
+    private static final String INVALID_CREDENTIALS = "Email ou mot de passe incorrect.";
+    // Fixed BCrypt work prevents an account-existence timing oracle for unknown emails.
+    private static final String DUMMY_PASSWORD_HASH = "$2a$10$7EqJtq98hPqEX7fNZaFWoO5QewO5s8B3kx69vwkJL60Mfss8xTcNm";
 
     private final UtilisateurService utilisateurService;
     private final UtilisateurRepository utilisateurRepository;
@@ -36,50 +36,16 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        Utilisateur utilisateur = utilisateurService.loadActiveUserByEmail(request.email());
-        if (!passwordEncoder.matches(request.motDePasse(), utilisateur.getMotDePasse())) {
-            throw new BusinessException("Email ou mot de passe incorrect.");
+        Utilisateur utilisateur = utilisateurRepository.findByEmailIgnoreCase(normalize(request.email())).orElse(null);
+        String passwordHash = utilisateur == null ? DUMMY_PASSWORD_HASH : utilisateur.getMotDePasse();
+        boolean passwordMatches = passwordEncoder.matches(request.motDePasse(), passwordHash);
+        if (utilisateur == null || !utilisateur.isActif() || !passwordMatches) {
+            throw new BadCredentialsException(INVALID_CREDENTIALS);
         }
-
-        return new AuthResponse(
-                jwtService.generateToken(utilisateur),
-                utilisateurService.toSessionDto(utilisateur)
-        );
-    }
-
-    public AuthResponse register(RegisterRequest request) {
-        utilisateurService.create(new UtilisateurRequest(
-                generateMatricule(),
-                request.prenom(),
-                request.nom(),
-                normalize(request.email()),
-                request.telephone(),
-                request.motDePasse(),
-                Role.EMPLOYE,
-                request.specialiteId()
-        ));
-
-        Utilisateur utilisateur = utilisateurService.loadActiveUserByEmail(request.email());
-        return new AuthResponse(
-                jwtService.generateToken(utilisateur),
-                utilisateurService.toSessionDto(utilisateur)
-        );
-    }
-
-    private String generateMatricule() {
-        for (int attempt = 0; attempt < 10; attempt++) {
-            String candidate = "EMP-WEB-" + UUID.randomUUID().toString()
-                    .replace("-", "")
-                    .substring(0, 8)
-                    .toUpperCase(Locale.ROOT);
-            if (!utilisateurRepository.existsByMatriculeIgnoreCase(candidate)) {
-                return candidate;
-            }
-        }
-        throw new BusinessException("Impossible de generer un matricule unique pour l'inscription.");
+        return new AuthResponse(jwtService.generateToken(utilisateur), utilisateurService.toSessionDto(utilisateur));
     }
 
     private String normalize(String value) {
-        return value == null ? null : value.trim();
+        return value == null ? null : value.trim().toLowerCase(Locale.ROOT);
     }
 }

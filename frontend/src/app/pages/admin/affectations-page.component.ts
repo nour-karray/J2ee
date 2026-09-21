@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { concatMap, from, toArray } from 'rxjs';
 import { ApiService } from '../../core/api.service';
 import { FeedbackService } from '../../core/feedback.service';
 import { Affectation, ApiError, Mission, Utilisateur } from '../../core/models';
@@ -290,7 +289,6 @@ export class AffectationsPageComponent {
   private readonly feedback = inject(FeedbackService);
 
   readonly items = signal<Affectation[]>([]);
-  readonly allActiveAffectations = signal<Affectation[]>([]);
   readonly employes = signal<Utilisateur[]>([]);
   readonly missions = signal<Mission[]>([]);
   readonly page = signal(0);
@@ -375,7 +373,6 @@ export class AffectationsPageComponent {
       error: (error: { error?: ApiError }) => this.listError.set(this.resolveApiError(error, 'Chargement impossible.'))
     });
 
-    this.refreshValidationAffectations();
   }
 
   edit(item: Affectation): void {
@@ -465,13 +462,10 @@ export class AffectationsPageComponent {
     }
 
     this.submitting.set(true);
-    from(employeIds).pipe(
-      concatMap((employeId) => this.apiService.createAffectation({
-        ...basePayload,
-        employeId
-      })),
-      toArray()
-    ).subscribe({
+    this.apiService.createAffectationsBatch({
+      ...basePayload,
+      employeIds
+    }).subscribe({
       next: (created) => {
         const total = created.length;
         this.feedback.success(
@@ -631,7 +625,6 @@ export class AffectationsPageComponent {
       error: (error: { error?: ApiError }) => this.formError.set(this.resolveApiError(error, 'Impossible de charger les missions.'))
     });
 
-    this.refreshValidationAffectations();
   }
 
   private getFirstFormError(): string {
@@ -675,41 +668,7 @@ export class AffectationsPageComponent {
       return `La periode d'affectation doit etre comprise entre ${mission.dateDebut} et ${mission.dateFin} pour la mission selectionnee.`;
     }
 
-    const employeIds = this.editingId()
-      ? [Number(this.form.get('employeId')?.value)]
-      : this.selectedEmployeIds();
-
-    const overloadedEmployes = employeIds
-      .filter((employeId) => this.isOccupationExceeded(employeId, raw.dateDebut, raw.dateFin, raw.tauxOccupation))
-      .map((employeId) => this.employes().find((item) => item.id === employeId)?.nomComplet ?? `Employe #${employeId}`);
-
-    if (overloadedEmployes.length > 0) {
-      return `Le taux d'occupation cumule depasse 100% pour: ${overloadedEmployes.join(', ')}.`;
-    }
-
     return '';
-  }
-
-  private isOccupationExceeded(employeId: number, dateDebut: string, dateFin: string, tauxOccupation: number): boolean {
-    const currentId = this.editingId();
-    const overlappingOccupation = this.allActiveAffectations()
-      .filter((item) => item.employeId === employeId)
-      .filter((item) => currentId == null || item.id !== currentId)
-      .filter((item) => this.isOverlapping(item.dateDebut, item.dateFin, dateDebut, dateFin))
-      .reduce((sum, item) => sum + item.tauxOccupation, 0);
-
-    return overlappingOccupation + tauxOccupation > 100;
-  }
-
-  private isOverlapping(existingStart: string, existingEnd: string, newStart: string, newEnd: string): boolean {
-    return existingStart <= newEnd && newStart <= existingEnd;
-  }
-
-  private refreshValidationAffectations(): void {
-    this.apiService.listAffectations({ page: 0, size: 200, actif: true, sort: 'updatedAt,desc' }).subscribe({
-      next: (response) => this.allActiveAffectations.set(response.content),
-      error: () => this.allActiveAffectations.set([])
-    });
   }
 
   private resolveApiError(error: { error?: ApiError }, fallback: string): string {

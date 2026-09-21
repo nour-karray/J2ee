@@ -22,7 +22,7 @@ describe('roleGuard', () => {
       utilisateur: {
         id: 2,
         nomComplet: 'Admin Demo',
-        email: 'admin@missions.local',
+        email: 'admin@demo.invalid',
         role: 'ADMIN'
       }
     }));

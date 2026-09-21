@@ -9,6 +9,8 @@ import com.entreprise.missions.core.specification.MissionSpecifications;
 import com.entreprise.missions.data.model.Affectation;
 import com.entreprise.missions.data.model.Mission;
 import com.entreprise.missions.data.model.MissionStatus;
+import com.entreprise.missions.data.model.Role;
+import com.entreprise.missions.data.model.Utilisateur;
 import com.entreprise.missions.data.repository.AffectationRepository;
 import com.entreprise.missions.data.repository.MissionRepository;
 import java.util.List;
@@ -59,6 +61,13 @@ public class MissionService {
         Mission mission = findEntity(id);
         String code = resolveCode(request.code(), id, mission.getCode());
         validateDates(request.dateDebut(), request.dateFin());
+        boolean movesActiveAssignmentOutsideWindow = mission.getAffectations().stream()
+                .filter(Affectation::isActif)
+                .anyMatch(assignment -> assignment.getDateDebut().isBefore(request.dateDebut())
+                        || assignment.getDateFin().isAfter(request.dateFin()));
+        if (movesActiveAssignmentOutsideWindow) {
+            throw new BusinessException("La nouvelle période de mission exclut une affectation active existante.");
+        }
         applyRequest(mission, request, code);
         return toDto(missionRepository.save(mission));
     }
@@ -74,11 +83,15 @@ public class MissionService {
     }
 
     @Transactional(readOnly = true)
-    public List<MissionTeamMemberDto> getTeam(Long missionId) {
+    public List<MissionTeamMemberDto> getTeam(Long missionId, Utilisateur requester) {
         findEntity(missionId);
+        boolean administrator = requester.getRole() == Role.ADMIN;
+        if (!administrator && !affectationRepository.existsActiveAssignmentForEmployeAndMission(requester.getId(), missionId)) {
+            throw new org.springframework.security.access.AccessDeniedException("Accès refusé à cette équipe.");
+        }
         return affectationRepository.findActiveTeamByMissionId(missionId)
                 .stream()
-                .map(this::toTeamMemberDto)
+                .map(affectation -> toTeamMemberDto(affectation, administrator))
                 .toList();
     }
 
@@ -172,14 +185,14 @@ public class MissionService {
         );
     }
 
-    private MissionTeamMemberDto toTeamMemberDto(Affectation affectation) {
+    private MissionTeamMemberDto toTeamMemberDto(Affectation affectation, boolean includeContactData) {
         return new MissionTeamMemberDto(
                 affectation.getId(),
                 affectation.getEmploye().getId(),
                 affectation.getEmploye().getMatricule(),
                 affectation.getEmploye().getNomComplet(),
-                affectation.getEmploye().getEmail(),
-                affectation.getEmploye().getTelephone(),
+                includeContactData ? affectation.getEmploye().getEmail() : null,
+                includeContactData ? affectation.getEmploye().getTelephone() : null,
                 affectation.getEmploye().getSpecialite() != null ? affectation.getEmploye().getSpecialite().getNom() : null,
                 affectation.getDateDebut(),
                 affectation.getDateFin(),

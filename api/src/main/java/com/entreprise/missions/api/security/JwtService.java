@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -18,11 +19,22 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
-    @Value("${app.jwt.secret}")
+    @Value("${app.jwt.secret:}")
     private String jwtSecret;
 
     @Value("${app.jwt.expiration-hours:10}")
     private long expirationHours;
+
+    @PostConstruct
+    void validateSecret() {
+        try {
+            if (jwtSecret == null || jwtSecret.isBlank() || Decoders.BASE64.decode(jwtSecret).length < 32) {
+                throw new IllegalStateException("APP_JWT_SECRET doit être une clé Base64 d'au moins 32 octets.");
+            }
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalStateException("APP_JWT_SECRET doit être une clé Base64 valide d'au moins 32 octets.", exception);
+        }
+    }
 
     public String generateToken(Utilisateur utilisateur) {
         Map<String, Object> claims = new HashMap<>();

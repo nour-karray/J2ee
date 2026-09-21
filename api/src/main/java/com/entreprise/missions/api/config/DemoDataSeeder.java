@@ -16,15 +16,17 @@ import com.entreprise.missions.data.repository.UtilisateurRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class DemoDataSeeder {
 
-    private static final String DEMO_ADMIN_EMAIL = "admin@missions.local";
+    private static final String DEMO_ADMIN_EMAIL = "admin@demo.invalid";
 
     @Bean
+    @ConditionalOnProperty(prefix = "app.demo", name = "seed-enabled", havingValue = "true")
     CommandLineRunner seedDemoData(
             UtilisateurRepository utilisateurRepository,
             SpecialiteService specialiteService,
@@ -34,8 +36,8 @@ public class DemoDataSeeder {
     ) {
         return args -> {
             utilisateurRepository.findByEmailIgnoreCase(DEMO_ADMIN_EMAIL).ifPresent(admin -> {
-                admin.setPrenom("Souhayla");
-                admin.setNom("Derbel");
+                admin.setPrenom("Admin");
+                admin.setNom("Demo");
                 utilisateurRepository.save(admin);
             });
 
@@ -49,10 +51,10 @@ public class DemoDataSeeder {
 
             var admin = utilisateurService.create(new UtilisateurRequest(
                     "ADM-001",
-                    "Souhayla",
-                    "Derbel",
+                    "Admin",
+                    "Demo",
                     DEMO_ADMIN_EMAIL,
-                    "+21620101010",
+                    null,
                     "Admin123!",
                     Role.ADMIN,
                     null
@@ -60,10 +62,10 @@ public class DemoDataSeeder {
 
             var employeeOne = utilisateurService.create(new UtilisateurRequest(
                     "EMP-001",
-                    "brahim",
-                    "Gharbi",
-                    "youssef@missions.local",
-                    "+21622111222",
+                    "Employee",
+                    "One",
+                    "employee-one@demo.invalid",
+                    null,
                     "Employe123!",
                     Role.EMPLOYE,
                     dev.id()
@@ -71,10 +73,10 @@ public class DemoDataSeeder {
 
             var employeeTwo = utilisateurService.create(new UtilisateurRequest(
                     "EMP-002",
-                    "Salma",
-                    "Trabelsi",
-                    "salma@missions.local",
-                    "+21622333444",
+                    "Employee",
+                    "Two",
+                    "employee-two@demo.invalid",
+                    null,
                     "Employe123!",
                     Role.EMPLOYE,
                     qa.id()
@@ -82,10 +84,10 @@ public class DemoDataSeeder {
 
             var employeeThree = utilisateurService.create(new UtilisateurRequest(
                     "EMP-003",
-                    "Karim",
-                    "Mansouri",
-                    "karim@missions.local",
-                    "+21622555666",
+                    "Employee",
+                    "Three",
+                    "employee-three@demo.invalid",
+                    null,
                     "Employe123!",
                     Role.EMPLOYE,
                     pm.id()

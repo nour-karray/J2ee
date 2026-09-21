@@ -2,11 +2,13 @@ package com.entreprise.missions.api.web;
 
 import com.entreprise.missions.core.dto.AffectationDto;
 import com.entreprise.missions.core.dto.AffectationRequest;
+import com.entreprise.missions.core.dto.BulkAffectationRequest;
 import com.entreprise.missions.core.dto.PagedResponse;
 import com.entreprise.missions.core.service.AffectationService;
 import com.entreprise.missions.data.model.AffectationStatus;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
+import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -63,6 +65,11 @@ public class AffectationController {
     @PostMapping
     public AffectationDto create(@Valid @RequestBody AffectationRequest request) {
         return affectationService.create(request);
+    }
+
+    @PostMapping("/batch")
+    public List<AffectationDto> createBatch(@Valid @RequestBody BulkAffectationRequest request) {
+        return affectationService.createBatch(request);
     }
 
     @PutMapping("/{id}")

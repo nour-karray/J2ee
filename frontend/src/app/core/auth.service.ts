@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { tap } from 'rxjs';
 import { AuthResponse, Role, SessionUtilisateur } from './models';
+import { environment } from '../../environments/environment';
 
 interface StoredSession {
   token: string;
@@ -11,7 +12,7 @@ interface StoredSession {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api';
+  private readonly apiUrl = environment.apiUrl;
   private readonly storageKey = 'plateforme-missions-session';
 
   readonly token = signal<string | null>(null);

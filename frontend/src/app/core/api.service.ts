@@ -10,11 +10,12 @@ import {
   Specialite,
   Utilisateur
 } from './models';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api';
+  private readonly apiUrl = environment.apiUrl;
 
   getDashboard(): Observable<Dashboard> {
     return this.http.get<Dashboard>(`${this.apiUrl}/admin/dashboard`);
@@ -78,6 +79,10 @@ export class ApiService {
 
   createAffectation(payload: Record<string, unknown>): Observable<Affectation> {
     return this.http.post<Affectation>(`${this.apiUrl}/affectations`, payload);
+  }
+
+  createAffectationsBatch(payload: Record<string, unknown>): Observable<Affectation[]> {
+    return this.http.post<Affectation[]>(`${this.apiUrl}/affectations/batch`, payload);
   }
 
   updateAffectation(id: number, payload: Record<string, unknown>): Observable<Affectation> {

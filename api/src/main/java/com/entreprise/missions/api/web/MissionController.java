@@ -5,12 +5,14 @@ import com.entreprise.missions.core.dto.MissionRequest;
 import com.entreprise.missions.core.dto.MissionTeamMemberDto;
 import com.entreprise.missions.core.dto.PagedResponse;
 import com.entreprise.missions.core.service.MissionService;
+import com.entreprise.missions.core.service.UtilisateurService;
 import com.entreprise.missions.data.model.MissionStatus;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,9 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class MissionController {
 
     private final MissionService missionService;
+    private final UtilisateurService utilisateurService;
 
-    public MissionController(MissionService missionService) {
+    public MissionController(MissionService missionService, UtilisateurService utilisateurService) {
         this.missionService = missionService;
+        this.utilisateurService = utilisateurService;
     }
 
     @GetMapping
@@ -79,7 +83,7 @@ public class MissionController {
 
     @GetMapping("/{id}/team")
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYE')")
-    public List<MissionTeamMemberDto> team(@PathVariable Long id) {
-        return missionService.getTeam(id);
+    public List<MissionTeamMemberDto> team(@PathVariable Long id, Authentication authentication) {
+        return missionService.getTeam(id, utilisateurService.loadActiveUserByEmail(authentication.getName()));
     }
 }

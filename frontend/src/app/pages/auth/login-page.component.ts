@@ -79,7 +79,7 @@ export class LoginPageComponent {
   readonly loginError = signal('');
 
   readonly loginForm = this.fb.group({
-    email: ['admin@missions.local', [Validators.required, Validators.email]],
+    email: ['admin@demo.invalid', [Validators.required, Validators.email]],
     motDePasse: ['Admin123!', [Validators.required]],
     rememberMe: [true]
   });

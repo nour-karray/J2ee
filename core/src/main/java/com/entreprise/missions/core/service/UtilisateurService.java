@@ -68,6 +68,10 @@ public class UtilisateurService {
 
     public UtilisateurDto update(Long id, UtilisateurRequest request) {
         Utilisateur utilisateur = findEntity(id);
+        boolean hasActiveAssignments = utilisateur.getAffectations().stream().anyMatch(Affectation::isActif);
+        if (utilisateur.getRole() == Role.EMPLOYE && request.role() != Role.EMPLOYE && hasActiveAssignments) {
+            throw new BusinessException("Impossible de changer le rôle d'un employé ayant des affectations actives.");
+        }
         String matricule = resolveMatricule(request.matricule(), request.role(), id, utilisateur.getMatricule());
         validateEmailUniqueness(request.email(), id);
         validateRoleSpecialite(request.role(), request.specialiteId());
@@ -77,6 +81,9 @@ public class UtilisateurService {
 
     public void deactivate(Long id) {
         Utilisateur utilisateur = findEntity(id);
+        if (utilisateur.getAffectations().stream().anyMatch(Affectation::isActif)) {
+            throw new BusinessException("Impossible de désactiver un employé ayant des affectations actives.");
+        }
         utilisateur.setActif(false);
         utilisateurRepository.save(utilisateur);
     }
@@ -84,6 +91,12 @@ public class UtilisateurService {
     @Transactional(readOnly = true)
     public Utilisateur findEntity(Long id) {
         return utilisateurRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Utilisateur introuvable."));
+    }
+
+    /** Locks one employee row while assignment capacity is checked and written. */
+    public Utilisateur findEntityForAssignment(Long id) {
+        return utilisateurRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new NotFoundException("Utilisateur introuvable."));
     }
 

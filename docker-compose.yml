@@ -4,8 +4,10 @@ services:
     container_name: plateforme-missions-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: plateforme_missions
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_demo_only}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-plateforme_missions}
+      MYSQL_USER: ${MYSQL_USER:-missions_demo}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-missions_demo_password}
     ports:
       - "3306:3306"
     volumes:

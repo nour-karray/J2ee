@@ -17,3 +17,9 @@
 *.iml
 *.log
 *.tmp
+.env
+.env.*
+!.env.example
+*.local
+secrets/
+/frontend/src/environments/environment.local.ts
